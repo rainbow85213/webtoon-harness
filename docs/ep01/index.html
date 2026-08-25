@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>꿈 꾸는 자 — 제1화 채색옷</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="꿈 꾸는 자 — 제1화 「채색옷」" />
+<meta property="og:description" content="창세기 37장 · 성경 웹툰 · 52칸 · 약 5분. 위에서 아래로 넘기며 읽습니다." />
+<meta property="og:image" content="https://rainbow85213.github.io/webtoon-harness/ep01/cover.jpg" />
+<meta property="og:url" content="https://rainbow85213.github.io/webtoon-harness/ep01/" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!--
+  「꿈 꾸는 자」 EP01 「채색옷」 · 세로 스크롤 뷰어 (단일 HTML · 외부 의존성 0)
+
+  · 패널 PNG는 무텍스트(C3 52/52 TEXT-FREE). 말풍선·SFX는 전부 이 파일의 HTML 오버레이다.
+  · 좌표계 = displayed_panel_box — display_height로 크롭된 '화면에 보이는 패널 박스' 대비 %.
+    구현: .panel 높이 = display_height, img 는 object-fit:cover + object-position:center N%.
+  · 대사 문자열은 ep01_lettering.json 과 글자 단위 동일(개역개정 인용 35건 포함). 수정 금지.
+  · 모바일 판독 점검: 주소 뒤에 ?w=360
+-->
+<style>
+  :root {
+    --col-w: 800px;              /* 조립 기준 폭 (base_column_width = 800) */
+    --scale: 1;                  /* 실컬럼폭 / 기준폭 — 컷 높이·거터를 동일 비율로 */
+    --page-bg: #22201C;          /* style-bible 2-1 먹(black) — 뷰어 바깥 */
+    --strip-bg: #E5DFD0;         /* style-bible 2-1 본 화이트 — 스트립·거터 */
+    --ink: #22201C;              /* 순검정 금지(style-bible 1-3) */
+    --bubble-bg: #FFFFFF;
+    --bubble-bd: #2A241E;        /* 짙은 흑갈 */
+    --narr-bg: rgba(34,32,28,.90);
+    --narr-fg: #EFE7D2;          /* 상아 */
+    --font-scale: 1;
+    --font-sans: 'Pretendard', 'Pretendard Variable', -apple-system,
+                 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
+    --font-serif: 'Nanum Myeongjo', 'AppleMyungjo', 'Noto Serif KR', 'Batang', serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--page-bg); }
+  body { font-family: var(--font-sans); color: var(--ink);
+         -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+
+  header.viewer-head {
+    position: sticky; top: 0; z-index: 9999;
+    background: rgba(34,32,28,.94); color: #EFE7D2; text-align: center;
+    padding: 10px 12px; font-size: 13px; letter-spacing: .02em;
+    backdrop-filter: blur(6px); line-height: 1.5;
+  }
+  header.viewer-head b { font-weight: 700; }
+  header.viewer-head span { opacity: .72; }
+
+  .strip { width: 100%; max-width: var(--col-w); margin: 0 auto; background: var(--strip-bg); }
+
+  /* 패널 = 오버레이 좌표계의 기준 박스.
+     height 는 승인된 display_height, 이미지는 cover 크롭 → 이 박스가 displayed_panel_box 다. */
+  .panel {
+    position: relative;
+    height: calc(var(--ph) * 1px * var(--scale));
+    container-type: inline-size;
+    overflow: visible;           /* 스트립 컷의 다중 풍선을 자르지 않는다(letterer 지시) */
+    line-height: 0;
+  }
+  .panel img {
+    width: 100%; height: 100%; display: block;
+    object-fit: cover;
+    object-position: center var(--op, 50%);
+    background: #D8D2C4;
+  }
+  .gutter { width: 100%; background: var(--strip-bg); }
+  .missing {
+    line-height: 1.6; color: #7A2B22; background: #F6ECE6;
+    border: 2px dashed #7A2B22; text-align: center;
+    padding: 24px 12px; font-size: 13px; word-break: keep-all;
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ===== 말풍선 오버레이 =====
+     ★ 폭 계산 주의: 풍선에 직접 left:x% 를 주면 shrink-to-fit 가용폭이
+     '컨테이너 폭 - left' 로 줄어 x 가 클수록 풍선이 납작해진다(=줄바꿈 폭증).
+     그래서 패널 전폭을 덮는 .b-anchor(top:y%)를 깔고, 그 안의 flex 아이템에
+     left:x% + translate(-50%,-50%) 를 준다. 이러면 max-width:w% 가
+     letterer 가 지정한 '패널 폭 대비 %' 그대로 작동한다. */
+  .b-anchor {
+    position: absolute; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: flex-start;
+  }
+  .bubble {
+    position: relative; flex: 0 0 auto;
+    transform: translate(-50%, -50%);
+    line-height: 1.38;
+    font-size: max(12px, calc(clamp(12px, 2.6cqw, 20px)
+                * var(--font-scale) * var(--fs, 1) * var(--fit, 1)));
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--bubble-bg);          /* 불투명 — 어두운 컷 위에서도 판독 */
+    border: 2px solid var(--bubble-bd);
+    border-radius: 46% / 36%;
+    padding: .62em 1.0em;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    white-space: pre-line;
+    box-shadow: 0 1px 4px rgba(0,0,0,.28);
+  }
+  .bubble.align-left { text-align: left; }
+  .bubble.font-serif { font-family: var(--font-serif); }
+
+  /* 꼬리 — em 단위라 글자 크기(=패널 폭)에 비례 스케일 */
+  .tail { position: absolute; width: 0; height: 0; border: .55em solid transparent; }
+  .tail::after { content: ""; position: absolute; border: .42em solid transparent; }
+  .tail.down        { bottom: -1.1em; left: 50%;   border-top-color: var(--bubble-bd); }
+  .tail.down::after { top: -.55em; left: -.42em;   border-top-color: var(--bubble-bg); }
+  .tail.up          { top: -1.1em; left: 50%;      border-bottom-color: var(--bubble-bd); }
+  .tail.up::after   { bottom: -.55em; left: -.42em; border-bottom-color: var(--bubble-bg); }
+  .tail.left        { left: -1.1em; top: 62%;      border-right-color: var(--bubble-bd); }
+  .tail.left::after { right: -.55em; top: -.42em;  border-right-color: var(--bubble-bg); }
+  .tail.right       { right: -1.1em; top: 62%;     border-left-color: var(--bubble-bd); }
+  .tail.right::after{ left: -.55em; top: -.42em;   border-left-color: var(--bubble-bg); }
+  .tail.down-left   { bottom: -1.1em; left: 22%;   border-top-color: var(--bubble-bd); }
+  .tail.down-left::after  { top: -.55em; left: -.42em; border-top-color: var(--bubble-bg); }
+  .tail.down-right  { bottom: -1.1em; left: 78%;   border-top-color: var(--bubble-bd); }
+  .tail.down-right::after { top: -.55em; left: -.42em; border-top-color: var(--bubble-bg); }
+  .tail.up-left     { top: -1.1em; left: 22%;      border-bottom-color: var(--bubble-bd); }
+  .tail.up-left::after    { bottom: -.55em; left: -.42em; border-bottom-color: var(--bubble-bg); }
+  .tail.up-right    { top: -1.1em; left: 78%;      border-bottom-color: var(--bubble-bd); }
+  .tail.up-right::after   { bottom: -.55em; left: -.42em; border-bottom-color: var(--bubble-bg); }
+
+  /* tail.tx/ty 정밀 꼬리 — 화자의 입까지 뻗는다. 풍선(z:10)보다 아래 */
+  .tails-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 9;
+               pointer-events: none; overflow: visible; }   /* 판독 보정 ②로 풍선이 거터로 나가도 꼬리가 따라간다 */
+  .tails-svg polygon { fill: var(--bubble-bg); stroke: var(--bubble-bd);
+                       stroke-width: 2; vector-effect: non-scaling-stroke; }
+
+  /* ── 종류별 ── */
+  .bubble.thought { border-style: dashed; border-radius: 50% / 42%; font-style: italic; }
+  .bubble.thought .tail { display: none; }
+
+  .bubble.shout {
+    font-size: max(14px, calc(clamp(14px, 3.4cqw, 26px)
+                * var(--font-scale) * var(--fs,1) * var(--fit,1)));
+    font-weight: 800; border-radius: 8px; padding: .8em 1.1em;
+    border: none; background: var(--bubble-bg);
+    outline: 3px solid var(--bubble-bd); outline-offset: -3px;
+    clip-path: polygon(0% 20%, 7% 4%, 24% 13%, 38% 0%, 54% 12%, 72% 2%, 86% 14%, 100% 22%,
+                       93% 50%, 100% 80%, 84% 92%, 68% 84%, 50% 100%, 32% 85%, 15% 95%, 4% 78%, 7% 50%);
+  }
+  .bubble.shout .tail { display: none; }
+
+  /* OFF — 화면 밖 화자. 꼬리 없음 + 좌측 굵은 바 */
+  .bubble.off { border-radius: 10px; border-left-width: 7px; }
+  .bubble.off .tail { display: none; }
+
+  /* 나레이션 — 회차 유일(p006_b1 「헤브론」). 신설 금지 */
+  .bubble.narration {
+    font-size: max(12px, calc(clamp(12px, 2.4cqw, 18px)
+                * var(--font-scale) * var(--fs,1) * var(--fit,1)));
+    border-radius: 3px; background: var(--narr-bg); color: var(--narr-fg);
+    border-color: rgba(239,231,210,.28); font-weight: 600;
+    letter-spacing: .12em; padding: .6em .95em;
+  }
+  .bubble.narration .tail { display: none; }
+
+  /* SFX — 배경 없는 테두리 글자 */
+  .bubble.sfx {
+    font-size: max(14px, calc(clamp(16px, 5.2cqw, 46px)
+                * var(--font-scale) * var(--fs,1)));
+    background: none; border: none; box-shadow: none; padding: 0;
+    font-weight: 900; letter-spacing: .02em; color: #FFFFFF;
+    -webkit-text-stroke: .085em #22201C;
+    paint-order: stroke fill;
+    text-shadow: 0 2px 7px rgba(0,0,0,.45);
+    white-space: nowrap;
+  }
+  .bubble.sfx .tail { display: none; }
+
+  /* p033_b1 — 형의 손에 물려 물리적으로 끊긴 풍선(말줄임표 아님) */
+  .bubble.clip-right {
+    border-radius: 22px 0 0 22px; border-right: 0; padding-right: 1.5em;
+    -webkit-mask-image: linear-gradient(to right, #000 68%, rgba(0,0,0,0) 100%);
+            mask-image: linear-gradient(to right, #000 68%, rgba(0,0,0,0) 100%);
+  }
+
+  footer.viewer-foot {
+    max-width: var(--col-w); margin: 0 auto;
+    background: var(--strip-bg); color: #6B5A44;
+    text-align: center; font-size: 12px; line-height: 1.9;
+    padding: calc(120px * var(--scale)) 16px calc(200px * var(--scale));
+    word-break: keep-all;
+  }
+  footer.viewer-foot .next { display: block; color: #22201C; font-size: 15px;
+                             font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; }
+  footer.viewer-foot .meta { display: block; margin-top: 22px; opacity: .72; font-size: 11px; }
+
+/* ===== 공유본 전용 — 프롤로그 / 에필로그 ===== */
+.sh-wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+.sh-card {
+  background: var(--strip-bg); color: var(--ink);
+  border-radius: 3px; padding: 40px 34px 34px;
+  box-shadow: 0 18px 44px rgba(0,0,0,.34);
+}
+.prologue { padding: 46px 0 34px; }
+.epilogue { padding: 34px 0 72px; }
+
+.sh-eyebrow { margin: 0 0 14px; font-size: 12.5px; letter-spacing: .16em;
+              color: #8A7A5E; font-weight: 700; }
+.sh-title { margin: 0; font-family: var(--font-serif); font-size: 46px;
+            line-height: 1.12; letter-spacing: .02em; font-weight: 400; }
+.sh-ep { margin: 8px 0 0; font-family: var(--font-serif); font-size: 20px; color: #6B5F4A; }
+.sh-rule { border: 0; border-top: 1px solid rgba(34,32,28,.16); margin: 24px 0 22px; }
+.sh-log { margin: 0; font-size: 15.5px; line-height: 1.78; color: #3A3428;
+          word-break: keep-all; }
+
+.sh-facts { list-style: none; margin: 24px 0 0; padding: 0;
+            display: grid; gap: 9px; }
+.sh-facts li { display: flex; gap: 14px; font-size: 14px; color: #4A4234; align-items: baseline; }
+.sh-facts li b { flex: none; width: 54px; font-size: 11.5px; font-weight: 700;
+                 letter-spacing: .1em; color: #8A7A5E; }
+
+.sh-how { margin: 26px 0 0; padding: 15px 17px; background: rgba(34,32,28,.055);
+          border-left: 3px solid #B27A3A; font-size: 13.5px; line-height: 1.72;
+          color: #4A4234; word-break: keep-all; }
+.sh-down { margin: 30px 0 0; text-align: center; font-size: 22px; color: #A8987A;
+           animation: shBob 1.9s ease-in-out infinite; }
+@keyframes shBob { 0%,100% { transform: translateY(0); opacity:.55 }
+                   50% { transform: translateY(6px); opacity:1 } }
+@media (prefers-reduced-motion: reduce) { .sh-down { animation: none } }
+
+.sh-h2 { margin: 0 0 6px; font-family: var(--font-serif); font-size: 26px; font-weight: 400; }
+.sh-sub { margin: 0 0 24px; font-size: 13.5px; color: #6B5F4A; line-height: 1.7;
+          word-break: keep-all; }
+.sh-ask { margin: 0; padding: 0; list-style: none; display: grid; gap: 16px;
+          counter-reset: shq; }
+.sh-ask li { position: relative; padding-left: 40px; font-size: 14.5px;
+             line-height: 1.72; color: #3A3428; word-break: keep-all; counter-increment: shq; }
+.sh-ask li::before {
+  content: counter(shq); position: absolute; left: 0; top: 1px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #22201C; color: #E5DFD0;
+  font-size: 12.5px; font-weight: 700; display: grid; place-items: center;
+}
+.sh-ask li b { display: block; margin-bottom: 3px; font-size: 15px; }
+.sh-tip { margin: 26px 0 0; padding: 15px 17px; background: rgba(34,32,28,.055);
+          border-left: 3px solid #22201C; font-size: 13.5px; line-height: 1.72;
+          color: #4A4234; word-break: keep-all; }
+
+.sh-det { margin: 22px 0 0; border-top: 1px solid rgba(34,32,28,.16); padding-top: 20px; }
+.sh-det > summary { cursor: pointer; font-size: 14px; font-weight: 700; color: #4A4234;
+                    list-style: none; display: flex; gap: 9px; align-items: center; }
+.sh-det > summary::-webkit-details-marker { display: none; }
+.sh-det > summary::before { content: "▸"; color: #B27A3A; transition: transform .18s; }
+.sh-det[open] > summary::before { transform: rotate(90deg); }
+.sh-det .sh-body { margin-top: 16px; font-size: 13.5px; line-height: 1.78;
+                   color: #4A4234; word-break: keep-all; }
+.sh-det .sh-body p { margin: 0 0 13px; }
+.sh-det .sh-body b { color: #22201C; }
+
+@media (max-width: 560px) {
+  .sh-card { padding: 32px 22px 28px; }
+  .sh-title { font-size: 38px; }
+  .prologue { padding: 30px 0 24px; }
+}
+</style>
+</head>
+<body>
+<header class="viewer-head"><b>「꿈 꾸는 자」</b> <span>제1화</span> <b>「채색옷」</b></header>
+
+<section class="prologue"><div class="sh-wrap"><div class="sh-card">
+  <p class="sh-eyebrow">창세기 37장 · 성경 웹툰</p>
+  <h1 class="sh-title">꿈 꾸는 자</h1>
+  <p class="sh-ep">제1화 「채색옷」</p>
+  <hr class="sh-rule" />
+  <p class="sh-log">아버지가 지어 준 채색옷과 두 번의 꿈 자랑이 형들의 증오를 채우고, 맏형이 자리를 비운 사이 요셉은 물 없는 구덩이에서 은 스무 냥에 팔린다 — 그리고 그를 구하려 놓아둔 밧줄만이 손대지 않은 채 남는다.</p>
+  <ul class="sh-facts">
+    <li><b>본문</b>창세기 37장 1~32절</li>
+    <li><b>분량</b>52칸 · 약 5분</li>
+    <li><b>대상</b>청소년·청년부</li>
+  </ul>
+  <p class="sh-how">위에서 아래로 넘기며 읽습니다. 인물이 하는 말 중
+    <b>성경에 있는 문장 35개는 개역개정에서 한 글자도 고치지 않고</b> 그대로 옮겼고,
+    「이것은 하나님의 뜻이었다」 같은 해설 자막은 한 줄도 넣지 않았습니다.</p>
+  <p class="sh-down" aria-hidden="true">↓</p>
+</div></div></section>
+<main class="strip" id="strip" aria-label="꿈 꾸는 자 제1화 세로 스크롤 뷰어"></main>
+<footer class="viewer-foot" id="foot"></footer>
+
+<section class="epilogue"><div class="sh-wrap"><div class="sh-card">
+  <h2 class="sh-h2">보고 나서, 이런 점을 알려 주세요</h2>
+  <p class="sh-sub">아직 시험판입니다. 좋았다는 말보다 걸렸던 지점이 훨씬 도움이 됩니다.</p>
+  <ol class="sh-ask">
+    <li><b>이야기가 이해되나요?</b>성경을 잘 모르는 사람이 봐도 지금 무슨 일이 벌어지는지 따라갈 수 있는지 알려 주세요.</li>
+    <li><b>그림과 글이 따로 놀지 않나요?</b>말풍선 위치, 글자 크기, 읽는 순서가 자연스러운지 봐 주세요.</li>
+    <li><b>속도감이 있나요?</b>지루하게 늘어지는 구간, 반대로 너무 훅 지나가 버리는 구간이 있는지가 특히 궁금합니다.</li>
+    <li><b>성경과 어긋나 보이는 곳이 있나요?</b>알고 계신 내용과 다르게 그려진 부분이 있다면 꼭 짚어 주세요.</li>
+  </ol>
+  <p class="sh-tip">알려 주실 때 <b>맨 위에서부터 몇 번째 칸인지</b> 함께 적어 주시면
+    그 칸만 다시 그릴 수 있어 훨씬 빠르게 고쳐집니다.</p>
+
+  <details class="sh-det"><summary>만든 쪽에서 미리 밝히는 점 — 성경과 다르게 그려진 두 곳</summary>
+  <div class="sh-body">
+    <p>둘 다 요셉이 꾼 <b>꿈 장면</b>이고, 둘 다 「개수」 문제입니다.
+      그림을 그리는 데 쓴 도구가 「정확히 열한 개를 그려라」 같은 개수 지시를 안정적으로 따르지 못합니다.
+      일곱 차례 다시 그렸지만 끝내 정확한 개수에 이르지 못했고, 도구의 한계로 확인해 현재 상태로 확정했습니다.</p>
+    <p><b>15번째 칸 — 곡식 단(창세기 37장 7절).</b>
+      단의 개수가 세는 방법에 따라 여덟에서 열셋 사이로 달라집니다. 서로 겹치고 화면 아래에서 잘리기 때문입니다.
+      다만 「하나가 서고 나머지가 둘러서서 절한다」는 장면의 뜻은 그대로 읽히고,
+      이 칸의 대사는 개수를 말하지 않습니다(37장 7절 원문에도 숫자가 없습니다).</p>
+    <p><b>19번째 칸 — 해와 달과 별(창세기 37장 9절).</b>
+      하늘의 빛점이 <b>약 열두 개</b>로, 본문의 열한 개보다 하나 많습니다.
+      바로 앞 18번째 칸에서 요셉이 「해와 달과 열한 별이 내게 절하더이다」라고 말한 직후라
+      세어 보시는 분이 계실 수 있는 구간입니다. 빛점들은 활 모양이고 양 끝은 화면 밖으로 잘려 있습니다.
+      해(주황빛 원반)와 달(은색 초승달)의 구분, 그리고 절하는 자세는 바르게 그려졌습니다.</p>
+    <p>이 두 칸은 <b>숫자를 확인하는 그림이 아니라 「누가 누구에게 절하는가」를 보는 그림</b>으로 봐 주시면 됩니다.</p>
+    <p>그 밖에 성경에 없지만 더한 것으로 <b>요셉 이마의 흉터</b>(36번째 칸부터 — 13년에 걸쳐 얼굴이 변하는 인물을
+      계속 알아볼 수 있게 하는 표시이며, 어떤 인물도 이를 입에 올리지 않습니다)와
+      <b>르우벤이 놓아둔 밧줄</b>(창세기 37장 22절 뒷부분의 「구원하여 돌려보내려 함이었더라」는 속마음을,
+      해설 자막을 쓰지 않기로 했기에 물건으로 옮긴 것)이 있습니다.
+      「르우벤은 막으려 했고 유다가 팔자고 했다」는 성경의 역할 배분은 그대로 지켰습니다.</p>
+  </div></details>
+</div></div></section>
+
+
+<script>
+/* ===== META ===== */
+const META = { title: "꿈 꾸는 자", episode: "제1화 「채색옷」", baseWidth: 800, fontScale: 1.0 };
+
+/* ===== PANELS =====
+   src    : 무텍스트 패널 PNG (index.html 기준 상대경로)
+   w / h  : 원본 PNG 실측(sips) — 참고용 · 종횡비 근거
+   ph     : display_height(px @800) — ep01_shotlist.md 승인 수치. 평탄화 금지
+   gap    : gutter_after(px @800)
+   op     : object-position 세로값. lock:true = 중앙 크롭 엄수(괘선 소멸 조건)
+   bubbles: ep01_lettering.json 값을 변형 없이 이식 */
+const PANELS = [
+  { src:"panels/panel_001.jpg", alt:"panel 001", w:848, h:1264, ph:720, gap:150, op:"50%", bubbles:[] },
+  { src:"panels/panel_002.jpg", alt:"panel 002", w:1264, h:848, ph:240, gap:120, op:"50%", bubbles:[] },
+  { src:"panels/panel_003.jpg", alt:"panel 003", w:1264, h:848, ph:130, gap:120, op:"60%", bubbles:[] },
+  { src:"panels/panel_004.jpg", alt:"panel 004", w:1024, h:1024, ph:280, gap:200, op:"50%", bubbles:[] },
+  { src:"panels/panel_005.jpg", alt:"panel 005", w:1264, h:848, ph:170, gap:600, op:"50%", bubbles:[
+      {"id": "p005_b1", "type": "off", "speaker": "형", "text": "…꿈이 어떻게 되는지.", "read_order": 1, "x": 24, "y": 25, "w": 40, "align": "center", "tail": {"dir": "none"}},
+  ]},
+  { src:"panels/panel_006.jpg", alt:"panel 006", w:848, h:1264, ph:520, gap:200, op:"50%", bubbles:[
+      {"id": "p006_b1", "type": "narration", "speaker": "나레", "text": "헤브론", "read_order": 1, "x": 19, "y": 8, "w": 26, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 1.0}},
+  ]},
+  { src:"panels/panel_007.jpg", alt:"panel 007", w:1264, h:848, ph:190, gap:250, op:"32%", bubbles:[] },
+  { src:"panels/panel_008.jpg", alt:"panel 008", w:1264, h:848, ph:200, gap:250, op:"28%", bubbles:[
+      {"id": "p008_b1", "type": "dialogue", "speaker": "요셉", "text": "아버지, 오늘 들에서요. 형들이—", "read_order": 1, "x": 30, "y": 9, "w": 40, "align": "center", "tail": {"dir": "down", "tx": 33, "ty": 34}},
+      {"id": "p008_b2", "type": "dialogue", "speaker": "요셉", "text": "아직 다 말 안 했어요. 더 있어요.", "read_order": 2, "x": 16, "y": 58, "w": 26, "align": "center", "tail": {"dir": "up-right"}},
+  ]},
+  { src:"panels/panel_009.jpg", alt:"panel 009", w:1264, h:848, ph:110, gap:250, op:"50%", bubbles:[
+      {"id": "p009_b1", "type": "dialogue", "speaker": "단", "text": "또 이르는 거야, 저거…", "read_order": 1, "x": 58, "y": 40, "w": 38, "align": "center", "tail": {"dir": "down-left", "tx": 26, "ty": 52}},
+  ]},
+  { src:"panels/panel_010.jpg", alt:"panel 010", w:1264, h:848, ph:150, gap:250, op:"50%", bubbles:[] },
+  { src:"panels/panel_011.jpg", alt:"panel 011", w:848, h:1264, ph:460, gap:150, op:"50%", bubbles:[] },
+  { src:"panels/panel_012.jpg", alt:"panel 012", w:1264, h:848, ph:190, gap:150, op:"50%", bubbles:[] },
+  { src:"panels/panel_013.jpg", alt:"panel 013", w:1264, h:848, ph:230, gap:200, op:"50%", bubbles:[
+      {"id": "p013_b1", "type": "dialogue", "speaker": "요셉", "text": "형님들, 오늘은 어디까지 올라가요?", "read_order": 1, "x": 69, "y": 70, "w": 30, "align": "center", "tail": {"dir": "up-left", "tx": 53, "ty": 26}},
+  ]},
+  { src:"panels/panel_014.jpg", alt:"panel 014", w:1264, h:848, ph:120, gap:150, op:"30%", bubbles:[
+      {"id": "p014_b1", "type": "dialogue", "speaker": "요셉", "text": "청하건대 내가 꾼 꿈을 들으시오", "read_order": 1, "x": 27, "y": 22, "w": 36, "align": "center", "tail": {"dir": "down-right", "tx": 46, "ty": 50}, "style": {"fs": 0.85}},
+  ]},
+  { src:"panels/panel_015.jpg", alt:"panel 015", w:848, h:1264, ph:820, gap:200, op:"50%", bubbles:[
+      {"id": "p015_b1", "type": "off", "speaker": "요셉", "text": "우리가 밭에서 곡식 단을 묶더니", "read_order": 1, "x": 22, "y": 18, "w": 36, "align": "center", "tail": {"dir": "none"}},
+      {"id": "p015_b2", "type": "off", "speaker": "요셉", "text": "내 단은 일어서고", "read_order": 2, "x": 22, "y": 44, "w": 30, "align": "center", "tail": {"dir": "none"}},
+      {"id": "p015_b3", "type": "off", "speaker": "요셉", "text": "당신들의 단은 내 단을 둘러서서 절하더이다", "read_order": 3, "x": 23, "y": 70, "w": 38, "align": "left", "tail": {"dir": "none"}},
+  ]},
+  { src:"panels/panel_016.jpg", alt:"panel 016", w:1264, h:848, ph:160, gap:150, op:"25%", bubbles:[
+      {"id": "p016_b1", "type": "dialogue", "speaker": "형들(선창 시므온)", "text": "네가 참으로 우리의 왕이 되겠느냐", "read_order": 1, "x": 17, "y": 18, "w": 28, "align": "center", "tail": {"dir": "down-right", "tx": 35, "ty": 44}, "style": {"fs": 0.9}},
+      {"id": "p016_b2", "type": "dialogue", "speaker": "형들", "text": "참으로 우리를 다스리게 되겠느냐", "read_order": 2, "x": 56, "y": 78, "w": 32, "align": "center", "tail": {"dir": "down-right"}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_017.jpg", alt:"panel 017", w:1264, h:848, ph:95, gap:200, op:"50%", lock:true, bubbles:[] },
+  { src:"panels/panel_018.jpg", alt:"panel 018", w:1264, h:848, ph:190, gap:150, op:"43%", bubbles:[
+      {"id": "p018_b1", "type": "dialogue", "speaker": "요셉", "text": "내가 또 꿈을 꾼즉", "read_order": 1, "x": 23, "y": 12, "w": 32, "align": "center", "tail": {"dir": "right", "tx": 45, "ty": 14}},
+      {"id": "p018_b2", "type": "dialogue", "speaker": "요셉", "text": "해와 달과 열한 별이 내게 절하더이다", "read_order": 2, "x": 25, "y": 42, "w": 34, "align": "center", "tail": {"dir": "up-right"}},
+  ]},
+  { src:"panels/panel_019.jpg", alt:"panel 019", w:848, h:1264, ph:700, gap:200, op:"33%", bubbles:[] },
+  { src:"panels/panel_020.jpg", alt:"panel 020", w:1264, h:848, ph:150, gap:150, op:"30%", bubbles:[
+      {"id": "p020_b1", "type": "dialogue", "speaker": "야곱", "text": "네가 꾼 꿈이 무엇이냐", "read_order": 1, "x": 77, "y": 14, "w": 38, "align": "center", "tail": {"dir": "down-left", "tx": 56, "ty": 40}, "style": {"fs": 0.9}},
+      {"id": "p020_b2", "type": "dialogue", "speaker": "야곱", "text": "나와 네 어머니와 네 형들이", "read_order": 2, "x": 77, "y": 44, "w": 38, "align": "center", "tail": {"dir": "left"}, "style": {"fs": 0.9}},
+      {"id": "p020_b3", "type": "dialogue", "speaker": "야곱", "text": "참으로 가서 땅에 엎드려 네게 절하겠느냐", "read_order": 3, "x": 77, "y": 79, "w": 38, "align": "center", "tail": {"dir": "up-left"}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_021.jpg", alt:"panel 021", w:1264, h:848, ph:80, gap:200, op:"50%", bubbles:[] },
+  { src:"panels/panel_022.jpg", alt:"panel 022", w:1264, h:848, ph:140, gap:250, op:"35%", bubbles:[
+      {"id": "p022_b1", "type": "dialogue", "speaker": "야곱", "text": "네 형들이 세겜에서 양을 치지 아니하느냐", "read_order": 1, "x": 18, "y": 24, "w": 30, "align": "center", "tail": {"dir": "down-right", "tx": 37, "ty": 44}, "style": {"fs": 0.9}},
+      {"id": "p022_b2", "type": "dialogue", "speaker": "야곱", "text": "너를 그들에게로 보내리라", "read_order": 2, "x": 18, "y": 76, "w": 30, "align": "center", "tail": {"dir": "up-right"}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_023.jpg", alt:"panel 023", w:848, h:1264, ph:560, gap:500, op:"50%", bubbles:[
+      {"id": "p023_b1", "type": "dialogue", "speaker": "요셉", "text": "내가 그리하겠나이다", "read_order": 1, "x": 26, "y": 10, "w": 34, "align": "center", "tail": {"dir": "down-right", "tx": 48, "ty": 64}},
+  ]},
+  { src:"panels/panel_024.jpg", alt:"panel 024", w:848, h:1264, ph:680, gap:150, op:"50%", bubbles:[] },
+  /* R-3 재렌더 반영 · op 20%→24% (얼굴이 원본 29~35%로 이동 · 가시 16.85~46.66%). F-5 색보정 미적용 — 채택본이 이미 건조 저채도 */
+  { src:"panels/panel_025.jpg", alt:"panel 025", w:1264, h:848, ph:160, gap:150, op:"24%", bubbles:[
+      {"id": "p025_b1", "type": "dialogue", "speaker": "요셉", "text": "내가 내 형들을 찾으오니", "read_order": 1, "x": 19, "y": 16, "w": 32, "align": "center", "tail": {"dir": "right", "tx": 58, "ty": 38}},
+      {"id": "p025_b2", "type": "dialogue", "speaker": "요셉", "text": "청하건대 그들이 양치는 곳을 내게 가르쳐 주소서", "read_order": 2, "x": 20, "y": 58, "w": 34, "align": "left", "tail": {"dir": "up-right"}},
+  ]},
+  { src:"panels/panel_026.jpg", alt:"panel 026", w:1264, h:848, ph:220, gap:500, op:"50%", bubbles:[
+      {"id": "p026_b1", "type": "dialogue", "speaker": "어떤 사람", "text": "도단으로 가자 하더라", "read_order": 1, "x": 53, "y": 8, "w": 28, "align": "center", "tail": {"dir": "down-left", "tx": 33, "ty": 25}},
+  ]},
+  { src:"panels/panel_027.jpg", alt:"panel 027", w:848, h:1264, ph:720, gap:150, op:"50%", bubbles:[] },
+  { src:"panels/panel_028.jpg", alt:"panel 028", w:1264, h:848, ph:110, gap:150, op:"50%", lock:true, bubbles:[
+      {"id": "p028_b1", "type": "dialogue", "speaker": "형들", "text": "꿈 꾸는 자가 오는도다", "read_order": 1, "x": 50, "y": 79, "w": 34, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_029.jpg", alt:"panel 029", w:1264, h:848, ph:170, gap:150, op:"12%", bubbles:[
+      {"id": "p029_b1", "type": "dialogue", "speaker": "시므온", "text": "자, 그를 죽여 한 구덩이에 던지고", "read_order": 1, "x": 20, "y": 22, "w": 34, "align": "center", "tail": {"dir": "down-right", "tx": 52, "ty": 46}, "style": {"fs": 0.9}},
+      {"id": "p029_b2", "type": "dialogue", "speaker": "형들", "text": "우리가 말하기를 악한 짐승이 그를 잡아먹었다 하자", "read_order": 2, "x": 20, "y": 72, "w": 34, "align": "left", "tail": {"dir": "down-right"}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_030.jpg", alt:"panel 030", w:1264, h:848, ph:130, gap:150, op:"50%", bubbles:[
+      {"id": "p030_b1", "type": "dialogue", "speaker": "단", "text": "그의 꿈이 어떻게 되는지를 우리가 볼 것이니라", "read_order": 1, "x": 19, "y": 30, "w": 32, "align": "left", "tail": {"dir": "down-right", "tx": 43, "ty": 66}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_031.jpg", alt:"panel 031", w:1264, h:848, ph:170, gap:150, op:"50%", bubbles:[
+      {"id": "p031_b1", "type": "dialogue", "speaker": "르우벤", "text": "우리가 그의 생명은 해치지 말자", "read_order": 1, "x": 23, "y": 25, "w": 40, "align": "center", "tail": {"dir": "down-right", "tx": 45, "ty": 32}},
+  ]},
+  /* 재렌더로 카메라가 뒤로 빠져 구도 변경 → 좌표 전면 재설계(lettering.json 동시 갱신).
+     화면 실측: 구덩이 x11~58%·y47~83% / 밧줄 x55~85%·y76~98% / 르우벤 x57~95%.
+     조용한 영역 = 세로 42% 위쪽 띠. 문구·read_order·꼬리 방향은 불변 */
+  { src:"panels/panel_032.jpg", alt:"panel 032", w:1024, h:1024, ph:600, gap:300, op:"50%", bubbles:[
+      {"id": "p032_b1", "type": "dialogue", "speaker": "르우벤", "text": "피를 흘리지 말라", "read_order": 1, "x": 39, "y": 7, "w": 34, "align": "center", "tail": {"dir": "right"}},
+      {"id": "p032_b2", "type": "dialogue", "speaker": "르우벤", "text": "그를 광야 그 구덩이에 던지고", "read_order": 2, "x": 39, "y": 21, "w": 34, "align": "center", "tail": {"dir": "right"}},
+      {"id": "p032_b3", "type": "dialogue", "speaker": "르우벤", "text": "손을 그에게 대지 말라", "read_order": 3, "x": 39, "y": 34.5, "w": 34, "align": "center", "tail": {"dir": "right"}},
+  ]},
+  { src:"panels/panel_033.jpg", alt:"panel 033", w:1264, h:848, ph:200, gap:450, op:"20%", bubbles:[
+      {"id": "p033_b1", "type": "dialogue", "speaker": "요셉", "text": "형님, 나—", "read_order": 1, "x": 68, "y": 32, "w": 20, "align": "center", "tail": {"dir": "left", "tx": 57, "ty": 36}, "style": {"clip": "right"}},
+  ]},
+  { src:"panels/panel_034.jpg", alt:"panel 034", w:848, h:1264, ph:980, gap:100, op:"50%", bubbles:[
+      {"id": "p034_s1", "type": "sfx", "speaker": null, "text": "촤악—", "read_order": 1, "x": 17, "y": 18, "w": 26, "align": "center", "tail": {"dir": "none"}, "style": {"rotate": -10}},
+  ]},
+  { src:"panels/panel_035.jpg", alt:"panel 035", w:1264, h:848, ph:230, gap:100, op:"50%", bubbles:[] },
+  { src:"panels/panel_036.jpg", alt:"panel 036", w:848, h:1264, ph:660, gap:400, op:"90%", bubbles:[
+      {"id": "p036_s1", "type": "sfx", "speaker": null, "text": "쿵.", "read_order": 1, "x": 76, "y": 52, "w": 24, "align": "center", "tail": {"dir": "none"}, "style": {"rotate": -6}},
+  ]},
+  { src:"panels/panel_037.jpg", alt:"panel 037", w:1024, h:1024, ph:420, gap:150, op:"88%", bubbles:[
+      {"id": "p037_s1", "type": "sfx", "speaker": null, "text": "달그락", "read_order": 1, "x": 68, "y": 24, "w": 20, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 0.7}},
+      {"id": "p037_s2", "type": "sfx", "speaker": null, "text": "웅— 웅—", "read_order": 2, "x": 62, "y": 76, "w": 24, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 0.6}},
+  ]},
+  { src:"panels/panel_038.jpg", alt:"panel 038", w:1264, h:848, ph:130, gap:120, op:"18%", bubbles:[
+      {"id": "p038_b1", "type": "dialogue", "speaker": "단", "text": "큰형은 어디 갔대?", "read_order": 1, "x": 17, "y": 26, "w": 28, "align": "center", "tail": {"dir": "down-right", "tx": 37, "ty": 54}, "style": {"fs": 0.9}},
+      {"id": "p038_b2", "type": "dialogue", "speaker": "시므온", "text": "몰라.", "read_order": 2, "x": 80, "y": 62, "w": 20, "align": "center", "tail": {"dir": "left", "tx": 62, "ty": 48}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_039.jpg", alt:"panel 039", w:1024, h:1024, ph:250, gap:150, op:"40%", bubbles:[
+      {"id": "p039_s1", "type": "sfx", "speaker": null, "text": "딸랑— 딸랑—", "read_order": 1, "x": 30, "y": 12, "w": 28, "align": "center", "tail": {"dir": "none"}, "style": {"rotate": -4, "fs": 0.8}},
+  ]},
+  { src:"panels/panel_040.jpg", alt:"panel 040", w:1264, h:848, ph:150, gap:150, op:"22%", bubbles:[
+      {"id": "p040_b1", "type": "dialogue", "speaker": "유다", "text": "우리가 우리 동생을 죽이고 그의 피를 덮어둔들", "read_order": 1, "x": 20, "y": 25, "w": 34, "align": "left", "tail": {"dir": "right", "tx": 45, "ty": 38}, "style": {"fs": 0.9}},
+      {"id": "p040_b2", "type": "dialogue", "speaker": "유다", "text": "무엇이 유익할까", "read_order": 2, "x": 84, "y": 70, "w": 26, "align": "center", "tail": {"dir": "up-left"}, "style": {"fs": 0.9}},
+  ]},
+  { src:"panels/panel_041.jpg", alt:"panel 041", w:1264, h:848, ph:190, gap:450, op:"25%", bubbles:[
+      {"id": "p041_b1", "type": "dialogue", "speaker": "유다", "text": "자 그를 이스마엘 사람들에게 팔고", "read_order": 1, "x": 28, "y": 46, "w": 40, "align": "center", "tail": {"dir": "up-left", "tx": 17, "ty": 26}, "style": {"fs": 0.85}},
+      {"id": "p041_b2", "type": "dialogue", "speaker": "유다", "text": "그에게 우리 손을 대지 말자", "read_order": 2, "x": 50, "y": 66, "w": 40, "align": "center", "tail": {"dir": "left"}, "style": {"fs": 0.85}},
+      {"id": "p041_b3", "type": "dialogue", "speaker": "유다", "text": "그는 우리의 동생이요 우리의 혈육이니라", "read_order": 3, "x": 66, "y": 88, "w": 44, "align": "center", "tail": {"dir": "left"}, "style": {"fs": 0.85}},
+  ]},
+  { src:"panels/panel_042.jpg", alt:"panel 042", w:848, h:1264, ph:780, gap:200, op:"22%", bubbles:[
+      {"id": "p042_s1", "type": "sfx", "speaker": null, "text": "웅—", "read_order": 1, "x": 17, "y": 26, "w": 16, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 0.55}},
+      {"id": "p042_s2", "type": "sfx", "speaker": null, "text": "촥—", "read_order": 2, "x": 76, "y": 58, "w": 20, "align": "center", "tail": {"dir": "none"}, "style": {"rotate": 8}},
+  ]},
+  { src:"panels/panel_043.jpg", alt:"panel 043", w:1264, h:848, ph:140, gap:250, op:"80%", filter:"saturate(.68) hue-rotate(-12deg) brightness(1.03)", bubbles:[
+      {"id": "p043_s1", "type": "sfx", "speaker": null, "text": "차락—", "read_order": 1, "x": 15, "y": 22, "w": 22, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 0.75}},
+      {"id": "p043_s2", "type": "sfx", "speaker": null, "text": "끼익—", "read_order": 2, "x": 88, "y": 26, "w": 18, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 0.75, "rotate": 6}},
+  ]},
+  { src:"panels/panel_044.jpg", alt:"panel 044", w:848, h:1264, ph:520, gap:300, op:"50%", bubbles:[] },
+  { src:"panels/panel_045.jpg", alt:"panel 045", w:1264, h:848, ph:170, gap:800, op:"50%", lock:true, bubbles:[
+      {"id": "p045_b1", "type": "dialogue", "speaker": "르우벤", "text": "밧줄 그대로 있을 텐데—", "read_order": 1, "x": 64, "y": 32, "w": 30, "align": "center", "tail": {"dir": "up-left", "tx": 44, "ty": 10}},
+  ]},
+  { src:"panels/panel_046.jpg", alt:"panel 046", w:848, h:1264, ph:1300, gap:400, op:"50%", bubbles:[] },
+  { src:"panels/panel_047.jpg", alt:"panel 047", w:1264, h:848, ph:190, gap:150, op:"50%", bubbles:[
+      {"id": "p047_s1", "type": "sfx", "speaker": null, "text": "촤아악—", "read_order": 1, "x": 76, "y": 20, "w": 30, "align": "center", "tail": {"dir": "none"}, "style": {"rotate": -8}},
+  ]},
+  { src:"panels/panel_048.jpg", alt:"panel 048", w:1024, h:1024, ph:380, gap:400, op:"50%", bubbles:[
+      {"id": "p048_b1", "type": "dialogue", "speaker": "르우벤", "text": "아이가 없도다", "read_order": 1, "x": 26, "y": 12, "w": 28, "align": "center", "tail": {"dir": "down-right", "tx": 46, "ty": 26}},
+      {"id": "p048_b2", "type": "dialogue", "speaker": "르우벤", "text": "나는 어디로 갈까", "read_order": 2, "x": 74, "y": 26, "w": 28, "align": "center", "tail": {"dir": "down-left"}},
+  ]},
+  { src:"panels/panel_049.jpg", alt:"panel 049", w:848, h:1264, ph:700, gap:800, op:"50%", bubbles:[] },
+  { src:"panels/panel_050.jpg", alt:"panel 050", w:1264, h:848, ph:160, gap:450, op:"50%", lock:true, bubbles:[
+      {"id": "p050_s1", "type": "sfx", "speaker": null, "text": "매—", "read_order": 1, "x": 76, "y": 20, "w": 24, "align": "center", "tail": {"dir": "none"}, "style": {"fs": 0.8}},
+  ]},
+  { src:"panels/panel_051.jpg", alt:"panel 051", w:848, h:1264, ph:900, gap:300, op:"50%", bubbles:[] },
+  /* R-2 재렌더 + QA F-2. op 70%→90% (가시 57.4~93.6%) — 옷 밑단(원본 90.8%)과 야곱 그림자(88.9~100%)를 함께 확보.
+     ※ F-2 지시문의 82%는 구 렌더 기준값으로, 재렌더본에 적용하면 밑단이 잘리고 그림자가 0% 들어온다(실측).
+     화면 실측: 겉옷 중앙 기둥 x35~68% / 그림자 x30~72%·y85~100% → 풍선은 좌우 바닥, y 84.5% 아래로 내리지 않는다 */
+  { src:"panels/panel_052.jpg", alt:"panel 052", w:1024, h:1024, ph:290, gap:0, op:"90%", bubbles:[
+      {"id": "p052_b1", "type": "dialogue", "speaker": "형들", "text": "우리가 이것을 발견하였으니", "read_order": 1, "x": 19, "y": 62, "w": 32, "align": "center", "tail": {"dir": "down"}},
+      {"id": "p052_b2", "type": "dialogue", "speaker": "형들", "text": "아버지 아들의 옷인가 보소서", "read_order": 2, "x": 83.5, "y": 70, "w": 27, "align": "center", "tail": {"dir": "down"}},
+  ]},
+];
+
+/* ===== 렌더러 ===== */
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+const svgEl = n => document.createElementNS("http://www.w3.org/2000/svg", n);
+
+function renderBubble(b){
+  const cls = ["bubble", b.type || "dialogue"];
+  if (b.align === "left") cls.push("align-left");
+  if (b.style && b.style.font === "serif") cls.push("font-serif");
+  if (b.style && b.style.clip === "right") cls.push("clip-right");
+  const a = el("div", "b-anchor");
+  a.style.top = (b.y ?? 50) + "%";
+  a.dataset.y = String(b.y ?? 50);              /* 판독 보정 패스가 되돌릴 기준값(SSOT) */
+  a.dataset.bid = b.id || "";
+  const n = el("div", cls.join(" "));
+  n.style.left = (b.x ?? 50) + "%";
+  n.dataset.x = String(b.x ?? 50);
+  n.dataset.w = String(b.w ?? 36);
+  if (b.w) n.style.maxWidth = b.w + "%";
+  if (b.style && b.style.fs) n.style.setProperty("--fs", b.style.fs);
+  if (b.style && b.style.rotate) n.style.transform =
+      "translate(-50%,-50%) rotate(" + b.style.rotate + "deg)";
+  if (b.id) n.dataset.id = b.id;
+  if (b.speaker) n.dataset.speaker = b.speaker;
+  n.appendChild(document.createTextNode(b.text || ""));   /* 실제 텍스트 노드 — 선택·검색·SR 가능 */
+  const dir = b.tail && b.tail.dir;
+  if (dir && dir !== "none") n.appendChild(el("span", "tail " + dir));
+  a.appendChild(n);
+  return a;
+}
+
+function renderTailSvg(bubbles){
+  const precise = bubbles.filter(b => b.tail && b.tail.tx != null && b.tail.ty != null
+                  && !["narration","sfx","off","shout","thought"].includes(b.type));
+  if (!precise.length) return null;
+  const svg = svgEl("svg");
+  svg.setAttribute("class","tails-svg");
+  svg.setAttribute("viewBox","0 0 100 100");
+  svg.setAttribute("preserveAspectRatio","none");
+  precise.forEach(b => {
+    const hw = Math.max(2.5, (b.w || 36) / 7);
+    const p = svgEl("polygon");
+    p.dataset.id = b.id || "";
+    p.dataset.hw = String(hw);
+    p.dataset.tx = String(b.tail.tx);
+    p.dataset.ty = String(b.tail.ty);
+    p.dataset.bx = String(b.x);
+    p.setAttribute("points",
+      [(b.x-hw)+","+b.y, (b.x+hw)+","+b.y, b.tail.tx+","+b.tail.ty].join(" "));
+    svg.appendChild(p);
+  });
+  return svg;
+}
+
+function renderPanel(p,i){
+  const num = String(i+1).padStart(3,"0");
+  const panel = el("div","panel");
+  panel.dataset.panel = num;
+  panel.style.setProperty("--ph", p.ph);
+  panel.style.setProperty("--op", p.op || "50%");
+  /* 앞 패널이 뒤 패널 위에 오도록 — 스트립 컷의 풍선이 거터로 넘쳐도 가려지지 않는다 */
+  panel.style.zIndex = String(1000 - i);
+
+  const img = new Image();
+  img.loading = "lazy"; img.decoding = "async";
+  if (p.w && p.h) { img.width = p.w; img.height = p.h; }
+  img.alt = p.alt || ("panel " + num);
+  if (p.filter) img.style.filter = p.filter;
+  img.src = p.src;
+  img.onerror = () => img.replaceWith(
+      el("div","missing","⚠ 패널 " + num + " 누락/손상: " + p.src));   /* 풍선은 남긴다 */
+  panel.appendChild(img);
+
+  const bubbles = (p.bubbles || []).slice().sort((a,c)=>(a.read_order||0)-(c.read_order||0));
+  const svg = renderTailSvg(bubbles);
+  if (svg) panel.appendChild(svg);
+  bubbles.forEach(b => panel.appendChild(renderBubble(b)));
+  return panel;
+}
+
+function renderGutter(px,i){
+  const g = el("div","gutter");
+  g.style.height = "calc(" + px + "px * var(--scale))";
+  g.setAttribute("aria-hidden","true");
+  g.dataset.after = String(i+1).padStart(3,"0");
+  return g;
+}
+
+/* --- 컬럼 실폭 반영: 컷 높이·거터가 같은 비율로 줄어든다(완급 보존) --- */
+function syncScale(){
+  const w = document.getElementById("strip").getBoundingClientRect().width || META.baseWidth;
+  document.documentElement.style.setProperty("--scale", (w / META.baseWidth).toFixed(5));
+}
+
+/* --- 판독 보정 패스 (QA F-3 재작성) -----------------------------------------
+   문제: 구 버전은 12px 하한 때문에 글자 축소가 먹지 않으면 곧장 min-height 를
+   최대 4.5배까지 키웠다. 그 결과 360px에서 중간대 스트립 컷 14장이 2배로 부풀어
+   **승인된 컷 높이 위계가 모바일에서만 재배열**됐다(P20 150 → 실효 340).
+
+   원칙: 컷 높이(=완급)를 가장 비싼 자산으로 보고 마지막에만 건드린다.
+   순서 ① 풍선 폭 확대(줄 수 감소)             — 기하 변화 0
+        ② 글자 배율 완만 축소(1.00→0.80)        — 판독 여유가 있는 넓은 폭에서 여기서 끝난다
+        ③ 세로 스프레드 → 거터로 넘침           — 패널 높이 불변(.panel/.tails-svg overflow:visible)
+        ④ 글자 배율 추가 축소(0.80→0.55, 12px 하한)
+        ⑤ min-height 증폭 — **상한 1.15배**
+   ⑤ 안에서도 안 풀리는 패널은 window.FIT_REPORT.unresolved 로 보고한다.
+
+   폭에 따라 자연히 갈린다:
+   · 800px — ②의 완만한 축소만으로 해소돼 letterer 좌표가 그대로 유지된다(구 버전과 동일한 결과).
+   · 360px — 바깥 max(12px,…) 하한 때문에 ②·④가 무력하므로 ③이 받는다. 구 버전은 이 지점에서
+             min-height 4.5배로 빠져 완급 서열을 재배열했다. 그 경로를 잘라낸 것이 이번 수정이다. */
+const FIT = { widenMax: 1.35, fitSoft: 0.80, fitMin: 0.55, spreadMax: 4.0, minHeightMax: 1.15, spillUse: 0.9 };
+
+function overlaps(rs){
+  for (let i=0;i<rs.length;i++) for (let j=i+1;j<rs.length;j++){
+    const a=rs[i], b=rs[j];
+    if (a.left < b.right-1 && b.left < a.right-1 && a.top < b.bottom-1 && b.top < a.bottom-1) return true;
+  }
+  return false;
+}
+/* 이 패널이 거터로 쓸 수 있는 상·하 여유(px). 앞뒤 거터의 90%까지만 빌린다 */
+function spill(panel){
+  const prev = panel.previousElementSibling, next = panel.nextElementSibling;
+  const up   = prev && prev.classList.contains("gutter") ? prev.getBoundingClientRect().height : 0;
+  const down = next && next.classList.contains("gutter") ? next.getBoundingClientRect().height : 0;
+  return { up: up * FIT.spillUse, down: down * FIT.spillUse };
+}
+/* 스프레드로 풍선이 움직이면 정밀 꼬리(SVG)도 함께 따라간다 */
+function syncTails(panel){
+  const h = panel.getBoundingClientRect().height || 1;
+  panel.querySelectorAll(".tails-svg polygon").forEach(p => {
+    const a = panel.querySelector('.b-anchor[data-bid="' + p.dataset.id + '"]');
+    if (!a) return;
+    const t = a.style.top || "50%";
+    const y = t.trim().endsWith("%") ? parseFloat(t) : parseFloat(t) / h * 100;
+    const hw = +p.dataset.hw, bx = +p.dataset.bx;
+    p.setAttribute("points",
+      [(bx-hw)+","+y, (bx+hw)+","+y, p.dataset.tx+","+p.dataset.ty].join(" "));
+  });
+}
+function fitPanel(panel){
+  /* 매 리사이즈마다 SSOT 좌표로 완전 복원한 뒤 다시 판정한다 */
+  panel.style.removeProperty("--fit");
+  panel.style.minHeight = "";
+  panel.querySelectorAll(".b-anchor").forEach(a => {
+    a.style.top = a.dataset.y + "%";
+    const b = a.firstElementChild;
+    if (b && b.dataset.w) b.style.maxWidth = b.dataset.w + "%";
+  });
+  syncTails(panel);
+
+  const bs = [...panel.querySelectorAll(".bubble:not(.sfx)")];
+  const anchors = bs.map(b => b.parentElement);          /* bs 와 인덱스 정렬 보장 */
+  if (bs.length < 2) return null;
+  const rects = () => bs.map(b => b.getBoundingClientRect());
+  if (!overlaps(rects())) return null;
+
+  /* ① 풍선 폭 확대 — 줄 수를 줄여 스택 높이를 낮춘다.
+        x±w/2 가 3~97% 를 벗어나지 않는 대칭 상한 안에서만 넓히고,
+        실제로 높이가 줄지 않으면(줄 수 그대로면) 그 풍선은 되돌린다 = 불필요한 폭 증가 금지 */
+  for (let k = 1.1; k <= FIT.widenMax + 1e-9; k += 0.1){
+    let moved = false;
+    bs.forEach(b => {
+      const x = +b.dataset.x, w0 = +b.dataset.w;
+      const cap = Math.min(2*(x-3), 2*(97-x));
+      const w = Math.min(cap, w0*k);
+      if (w <= w0 + .01) return;
+      const h0 = b.getBoundingClientRect().height, prev = b.style.maxWidth;
+      b.style.maxWidth = w.toFixed(2) + "%";
+      if (b.getBoundingClientRect().height >= h0 - .5) b.style.maxWidth = prev;
+      else moved = true;
+    });
+    if (!moved) break;
+    if (!overlaps(rects())) return null;
+  }
+
+  /* ② 글자 배율 완만 축소 — 800px처럼 판독 여유가 있는 폭에서는 여기서 끝나고,
+        letterer 좌표(SSOT)가 한 픽셀도 움직이지 않는다. 360px에서는 12px 하한에 걸려 무효 */
+  for (let f = 0.95; f >= FIT.fitSoft - 1e-9; f -= 0.05){
+    panel.style.setProperty("--fit", f.toFixed(2));
+    if (!overlaps(rects())) return null;
+  }
+  panel.style.removeProperty("--fit");        /* 효과가 없었으므로 글자를 원래대로 되돌린다 */
+
+  /* ③ 세로 스프레드 — 스택 무게중심을 축으로 벌려 거터로 넘긴다. 패널 높이는 그대로다.
+        (lettering.json compositor_requests.small_panel_overflow 가 명시적으로 허용한 경로) */
+  const h  = panel.getBoundingClientRect().height;
+  const sp = spill(panel);
+  const base = anchors.map(a => +a.dataset.y * h / 100);
+  const mid  = base.reduce((s,v)=>s+v,0) / base.length;
+  for (let s = 1.05; s <= FIT.spreadMax + 1e-9; s += 0.05){
+    const tops = base.map(v => mid + (v - mid) * s);
+    const half = anchors.map((a,i) => bs[i] ? bs[i].getBoundingClientRect().height/2 : 0);
+    if (Math.min(...tops.map((t,i)=>t-half[i])) < -sp.up)      break;   /* 위 거터 초과 */
+    if (Math.max(...tops.map((t,i)=>t+half[i])) > h + sp.down) break;   /* 아래 거터 초과 */
+    anchors.forEach((a,i) => a.style.top = tops[i].toFixed(1) + "px");
+    syncTails(panel);
+    if (!overlaps(rects())) return null;
+  }
+
+  /* ④ 글자 배율 추가 축소 — 12px 하한은 CSS 의 바깥 max() 가 지킨다 */
+  for (let f = FIT.fitSoft; f >= FIT.fitMin - 1e-9; f -= 0.05){
+    panel.style.setProperty("--fit", f.toFixed(2));
+    if (!overlaps(rects())) return null;
+  }
+
+  /* ⑤ min-height 증폭 — 상한 1.15배. 여기서 멈추는 것이 이 재조립의 핵심 */
+  const h0 = panel.getBoundingClientRect().height;
+  for (let m = 1.05; m <= FIT.minHeightMax + 1e-9; m += 0.05){
+    panel.style.minHeight = (h0 * m).toFixed(1) + "px";
+    if (!overlaps(rects())) return null;
+  }
+  return panel.dataset.panel;      /* 상한 내 미해결 — 보고 대상 */
+}
+function fitAll(){
+  const unresolved = [];
+  document.querySelectorAll(".panel").forEach(p => { const r = fitPanel(p); if (r) unresolved.push(r); });
+  window.FIT_REPORT = { width: Math.round(document.getElementById("strip").getBoundingClientRect().width),
+                        minHeightCap: FIT.minHeightMax, unresolved };
+  return unresolved;
+}
+
+(function init(){
+  document.title = META.title + " — " + META.episode;
+
+  const forced = new URLSearchParams(location.search).get("w");   /* ?w=360 모바일 판독 점검 */
+  if (forced) document.documentElement.style.setProperty("--col-w", parseInt(forced,10) + "px");
+  document.documentElement.style.setProperty("--font-scale", META.fontScale || 1);
+
+  const strip = document.getElementById("strip");
+  const frag = document.createDocumentFragment();
+  PANELS.forEach((p,i) => {
+    frag.appendChild(renderPanel(p,i));
+    if (p.gap > 0) frag.appendChild(renderGutter(p.gap,i));
+  });
+  strip.appendChild(frag);
+
+  syncScale();
+  fitAll();
+  addEventListener("resize", () => { syncScale(); fitAll(); }, { passive:true });
+
+  const nb  = PANELS.reduce((s,p)=>s+(p.bubbles||[]).length,0);
+  const sfx = PANELS.reduce((s,p)=>s+(p.bubbles||[]).filter(b=>b.type==="sfx").length,0);
+  const cut = PANELS.reduce((s,p)=>s+p.ph,0);
+  const gut = PANELS.reduce((s,p)=>s+(p.gap||0),0);
+  const foot = document.getElementById("foot");
+  foot.appendChild(el("span","next","다음 화 ─ 제2화 「은 이십」"));
+  foot.appendChild(document.createTextNode("계속"));
+  foot.appendChild(el("span","meta",
+    "총 " + PANELS.length + "패널 · 말풍선 " + (nb-sfx) + " + SFX " + sfx +
+    " · 컷 " + cut.toLocaleString() + "px + 거터 " + gut.toLocaleString() +
+    "px = 총장 " + (cut+gut).toLocaleString() + "px (@" + META.baseWidth + "px 폭)"));
+})();
+</script>
+</body>
+</html>
